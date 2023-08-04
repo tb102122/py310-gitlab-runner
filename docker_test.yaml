@@ -1,23 +1,25 @@
-schemaVersion: 2.0.0
+version: "1.0.0"
 commandTests:
-  - name: "Terraform"
+  - name: "Python Version"
     command: "sh"
     args:
       - -c
       - |
-        terraform --version
-    expectedOutput: ["Terraform v.*"]
-  - name: "AWS CLI"
+        docker run --rm -it python-based:latest sh -c "python --version"
+    expectedOutput: ["Python 3.10*"]
+
+  - name: "Operating System"
     command: "sh"
     args:
       - -c
       - |
-        aws --version
-    expectedOutput: ["aws-cli/.*"]
-  - name: "Docker"
-    command: "sh"
-    args:
-      - -c
-      - |
-        docker --version
-    expectedOutput: ["Docker version.*, build.*"]
+        docker run --rm -it python-based:latest sh -c "uname -o"
+    expectedOutput: ["GNU/Linux"]
+  
+  - name: "Unix Environment Version"
+  command: "sh"
+  args:
+    - -c
+    - |
+      docker run --rm -it python-based:latest sh -c "uname --version"
+  expectedOutput: ["uname (GNU coreutils) 9.1*"]

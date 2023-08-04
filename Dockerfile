@@ -1,10 +1,14 @@
-FROM python:3.10.9-slim-buster as builder
+FROM python:3.10
 
 ENV ODBCINI=/opt/odbc.ini
+
 ENV ODBCSYSINI=/opt/
+
 ARG UNIXODBC_VERSION=2.3.11
 
-RUN yum install -y gzip tar gnupg openssl-devel && yum groupinstall "Development Tools" -y
+RUN apt-get update && \
+    apt-get install -y curl gzip tar gnupg openssl libssl-dev build-essential && \
+    apt-get clean
 
 RUN curl ftp://ftp.unixodbc.org/pub/unixODBC/unixODBC-${UNIXODBC_VERSION}.tar.gz -O \
     && tar xzvf unixODBC-${UNIXODBC_VERSION}.tar.gz \
@@ -13,19 +17,15 @@ RUN curl ftp://ftp.unixodbc.org/pub/unixODBC/unixODBC-${UNIXODBC_VERSION}.tar.gz
     && make \
     && make install
 
-RUN curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos.d/mssql-release.repo
-RUN yum install e2fsprogs.x86_64 0:1.43.5-2.43.amzn1 fuse-libs.x86_64 0:2.9.4-1.18.amzn1 libss.x86_64 0:1.43.5-2.43.amzn1 -y
-RUN ACCEPT_EULA=Y yum install -y msodbcsql18
-RUN ACCEPT_EULA=Y yum install -y mssql-tools18
-
+# Install Microsoft ODBC driver for SQL Server (Debian-based package)
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+RUN curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list
+RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18
+ 
+RUN echo $'[ODBC Driver 18 for SQL Server]\nDriver = ODBC Driver 18 for SQL Server\nDescription = My ODBC Driver 18 for SQL Server\nTrace = No' > /root/odbc.ini
+RUN echo $'[ODBC Driver 18 for SQL Server]\nDescription = Microsoft ODBC Driver 18 for SQL Server\nDriver = /opt/microsoft/msodbcsql18/lib64/libmsodbcsql-18.2.so.2.1\nUsageCount = 1' > /root/odbcinst.ini
+ 
 ENV CFLAGS="-I/opt/include"
 ENV LDFLAGS="-L/opt/lib"
 
-RUN mkdir /opt/python/ && cd /opt/python/ && pip install pyodbc -t .
-
-#build layer with Docker and Terraform
-FROM registry.gitlab.com/gitlab-org/terraform-images/stable:latest
-
-COPY --from=builder /opt/python /opt/python
-COPY --from=builder /opt/microsoft /opt/microsoft
-COPY --from=builder /opt/lib /opt/lib
+# RUN pip install pyodbc
