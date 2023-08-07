@@ -19,5 +19,5 @@ commandTests:
     args:
       - -c
       - |
-        uname -o
+        uname --version
     expectedOutput: ["uname (GNU coreutils) 9.1*"]
