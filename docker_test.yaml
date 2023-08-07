@@ -20,4 +20,4 @@ commandTests:
       - -c
       - |
         uname --version
-    expectedOutput: ["uname (GNU coreutils) 9.1*"]
+    expectedOutput: ["uname \(GNU coreutils\) 9\.1"]
