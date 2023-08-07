@@ -1,4 +1,4 @@
-version: "1.0.0"
+schemaVersion: 2.0.0
 commandTests:
   - name: "Python Version"
     command: "sh"
@@ -7,7 +7,6 @@ commandTests:
       - |
         docker run --rm -it python-based:latest sh -c "python --version"
     expectedOutput: ["Python 3.10*"]
-
   - name: "Operating System"
     command: "sh"
     args:
@@ -15,7 +14,6 @@ commandTests:
       - |
         docker run --rm -it python-based:latest sh -c "uname -o"
     expectedOutput: ["GNU/Linux"]
-  
   - name: "Unix Environment Version"
     command: "sh"
     args:
