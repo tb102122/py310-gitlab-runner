@@ -21,3 +21,10 @@ commandTests:
       - |
         uname --version
     expectedOutput: ["uname.*GNU coreutils.*9.1*"]
+  - name: "unixodbc installed"
+    command: "sh"
+    args:
+      - -c
+      - |
+        dpkg -l | grep unixodb
+    expectedOutput: [".*unixodbc.*2.3.*"]
